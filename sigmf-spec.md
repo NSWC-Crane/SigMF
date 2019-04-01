@@ -31,34 +31,34 @@ This document is available under the [CC-BY-SA License](http://creativecommons.o
 **Table of Contents**
 
 * [Signal Metadata Format Specification v0.0.2](#signal-metadata-format-specification-v002)
-    * [Abstract](#abstract)
-    * [Status of this Document](#status-of-this-document)
-    * [Copyright Notice](#copyright-notice)
-    * [Table of Contents](#table-of-contents)
-    * [Introduction](#introduction)
-    * [Conventions Used in this Document](#conventions-used-in-this-document)
-    * [Specification](#specification)
-        * [Files](#files)
-            * [SigMF Archives](#sigmf-archives)
-        * [Dataset Format](#dataset-format)
-        * [Metadata Format](#metadata-format)
-            * [Datatypes](#datatypes)
-            * [Namespaces](#namespaces)
-                * [Extension Namespaces](#extension-namespaces)
-                * [Canonical Extension Namespaces](#canonical-extension-namespaces)
-            * [Global Object](#global-object)
-                * [The `extensions` Field](#the-extensions-field)
-            * [Captures Array](#captures-array)
-                * [Capture Segment Objects](#capture-segment-objects)
-                    * [The `global_index` Pair](#the-globalindex-pair)
-                    * [The `datetime` Pair](#the-datetime-pair)
-            * [Annotations Array](#annotations-array)
-                * [Annotation Segment Objects](#annotation-segment-objects)
-        * [Dataset Licensing](#dataset-licensing)
-        * [SigMF Compliance by Applications](#sigmf-compliance-by-applications)
-    * [Example](#example)
-    * [Citing SigMF](#citing-sigmf)
-    * [Acknowledgements](#acknowledgements)
+  * [Abstract](#abstract)
+  * [Status of this Document](#status-of-this-document)
+  * [Copyright Notice](#copyright-notice)
+  * [Table of Contents](#table-of-contents)
+  * [Introduction](#introduction)
+  * [Conventions Used in this Document](#conventions-used-in-this-document)
+  * [Specification](#specification)
+    * [Files](#files)
+      * [SigMF Archives](#sigmf-archives)
+    * [Dataset Format](#dataset-format)
+    * [Metadata Format](#metadata-format)
+      * [Datatypes](#datatypes)
+      * [Namespaces](#namespaces)
+        * [Extension Namespaces](#extension-namespaces)
+        * [Canonical Extension Namespaces](#canonical-extension-namespaces)
+      * [Global Object](#global-object)
+        * [The `extensions` Field](#the-extensions-field)
+      * [Captures Array](#captures-array)
+        * [Capture Segment Objects](#capture-segment-objects)
+          * [The `global_index` Pair](#the-globalindex-pair)
+          * [The `datetime` Pair](#the-datetime-pair)
+      * [Annotations Array](#annotations-array)
+        * [Annotation Segment Objects](#annotation-segment-objects)
+    * [Dataset Licensing](#dataset-licensing)
+    * [SigMF Compliance by Applications](#sigmf-compliance-by-applications)
+  * [Example](#example)
+  * [Citing SigMF](#citing-sigmf)
+  * [Acknowledgements](#acknowledgements)
 
 ## Introduction
 
@@ -196,7 +196,7 @@ be namespaced.
 
 The format of the name/value pairs is:
 
-```
+```JSON
 "namespace:name": value,
 ```
 
@@ -261,11 +261,12 @@ namespaces may be defined by the user as needed.
    the canonical extension namespaces.
 
 ##### Canonical Extension Namespaces
+
 This is a list of the canonical extension namespaces defined by SigMF:
 
- * `antenna` - Used to describe the antenna(s) used to for the recording.
- * `modulation` - Defines how to describe modulations used in wireless communications systems.
- * `volatile` - Allows for continously time-varying fields, such as a moving receiver or rotating antenna.
+* `antenna` - Used to describe the antenna(s) used to for the recording.
+* `modulation` - Defines how to describe modulations used in wireless communications systems.
+* `volatile` - Allows for continously time-varying fields, such as a moving receiver or rotating antenna.
 
 #### Global Object
 
@@ -291,23 +292,38 @@ the `global` object:
 |`recorder`|false|string|The name of the software used to make this SigMF recording.|
 |`license`|false|string|A URL for the license document under which the recording is offered; when possible, use the canonical document provided by the license author, or, failing that, a well-known one.|
 |`hw`|false |string|A text description of the hardware used to make the recording.|
-|`extensions`|false|object|A list of extensions used by this recording.|
+|`extensions`|false|array|A list of objects describing extensions used by this recording.|
 
 ##### The `extensions` Field
-The `core:extensions` field in the `global` object is JSON array of name/value
-pairs describing `SigMF Extension` namespaces, where the name is the namespace
-provided by an extension and the value is a string that specifies whether the
-extension is `optional` or the version of the extension required to properly
-parse & process the SigMF Recording. In the example below, `extension-01` is
-used, but not required, and `version 1.2.3` of `extension-02` *is* required.
+
+The `core:extensions` field in the `global` object is a JSON array of objects
+that describe SigMF extensions. These `extensions objects` have the following
+names defined in the `core` namespace:
+
+|name|required|type|description|
+|----|--------------|-------|-----------|
+|`ext_name`|true|string|The name of the SigMF extension namespace.|
+|`ext_version`|true|string|The version of the extension namespace specification used.|
+|`ext_optional`|true|boolean|If this field is `true`, the extension is required to parse this recording.|
+
+In the example below, `extension-01` is used, but not required, and 
+`version 1.2.3` of `extension-02` *is* required.
 
 ```JSON
   "global": {
     ...
-    "core:extensions" : {
-      "extension-01": "optional",
-      "extension-02": "v1.2.3",
-    }
+    "core:extensions" : [
+        {
+        "core:ext_name": "extension-01",
+        "core:ext_version": "v0.0.5",
+        "core:ext_optional": true
+        },
+        {
+        "core:ext_name": "extension-02",
+        "core:ext_version": "v1.2.3",
+        "core:ext_optional": false
+        }
+    ]
     ...
   }
 ```
